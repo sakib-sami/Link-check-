@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>লিংক চেকার | নিরাপদ লিংক যাচাই</title>
+  <style>
+    body {
+      background: url('https://i.postimg.cc/qMQ36jbj/Black-Background-Simple-Image-Tiger-Day-Instagram-Story-20250531-223836.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Kalpurush', 'Segoe UI', sans-serif;
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    input[type="text"] {
+      padding: 10px;
+      width: 90%;
+      max-width: 400px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 25px;
+      font-size: 18px;
+      border: 2px solid white;
+      border-radius: 12px;
+      background-color: transparent;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: white;
+      color: #3498db;
+    }
+    #result, #history {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    .safe { color: #2ecc71; }
+    .danger { color: #e74c3c; }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #ad-container {
+      margin-top: 30px;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    #ad-container > * {
+      margin-bottom: 20px; /* বিজ্ঞাপনের মাঝে ফাঁক */
+    }
+  </style>
+</head>
+<body>
+
+  <div id="languagePrompt">
+    <h1>🌐 আপনি কোন ভাষায় ব্যবহার করতে চান?</h1>
+    <button onclick="setLanguage('bn')">বাংলা</button>
+    <button onclick="setLanguage('en')">English</button>
+  </div>
+
+  <div id="appContent" style="display:none;">
+    <h1 id="title">🔗 লিংক চেকার টুল</h1>
+    <p id="instruction">আপনার দেওয়া যেকোনো লিংক নিরাপদ কিনা যাচাই করুন।</p>
+    <input type="text" id="linkInput" placeholder="এখানে লিংক দিন যেমনঃ https://example.com">
+    <br>
+    <button onclick="checkLink()" id="checkBtn">লিংক চেক করুন</button>
+    <div id="loader" class="loader"></div>
+    <div id="result"></div>
+    <div id="history"></div>
+
+    <!-- ✅ বিজ্ঞাপন কন্টেইনারে বিদ্যমান ও নতুন বিজ্ঞাপন যুক্ত -->
+    <div id="ad-container">
+      <!-- বিদ্যমান বিজ্ঞাপন -->
+      <script type='text/javascript' src='//pl26784347.profitableratecpm.com/58/fe/0b/58fe0b314f3918318bfd880165fb93ec.js'></script>
+      <!-- নতুন বিজ্ঞাপন -->
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'cccadc3f998e282edb2f20a79dbeb3bb',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/cccadc3f998e282edb2f20a79dbeb3bb/invoke.js"></script>
+    </div>
+  </div>
+
+  <script>
+    let language = 'bn';
+    let historyData = [];
+
+    function setLanguage(lang) {
+      language = lang;
+      document.getElementById("languagePrompt").style.display = "none";
+      document.getElementById("appContent").style.display = "block";
+      if (lang === 'en') {
+        document.getElementById("title").innerText = "🔗 Link Checker Tool";
+        document.getElementById("instruction").innerText = "Check if a given link is safe.";
+        document.getElementById("checkBtn").innerText = "Check Link";
+      }
+    }
+
+    function isValidURL(url) {
+      const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+      return urlPattern.test(url);
+    }
+
+    function updateHistoryDisplay() {
+      const historyDiv = document.getElementById("history");
+      historyDiv.innerHTML = `<h3>${language === 'bn' ? 'ইতিহাস' : 'History'}</h3>` + historyData.map(entry =>
+        `<div>${entry.url} ➤ <span class="${entry.status === 'safe' ? 'safe' : 'danger'}">${entry.message}</span></div>`
+      ).join('');
+    }
+
+    function checkLink() {
+      const url = document.getElementById('linkInput').value.trim();
+      const result = document.getElementById('result');
+      const loader = document.getElementById('loader');
+
+      result.innerHTML = "";
+      loader.style.display = "block";
+
+      if (!url) {
+        result.innerHTML = language === 'bn' ? "⛔ অনুগ্রহ করে একটি লিংক দিন।" : "⛔ Please enter a link.";
+        result.className = "danger";
+        loader.style.display = "none";
+        return;
+      }
+
+      if (!isValidURL(url)) {
+        result.innerHTML = language === 'bn' ? "⛔ অনুগ্রহ করে একটি বৈধ লিংক দিন।" : "⛔ Please enter a valid link.";
+        result.className = "danger";
+        loader.style.display = "none";
+        return;
+      }
+
+      setTimeout(() => {
+        loader.style.display = "none";
+        let status = 'safe';
+        let message = language === 'bn' ? "✅ এই লিংকটি নিরাপদ।" : "✅ This link seems safe.";
+
+        if (url.includes("phishing") || url.includes("malware") || url.includes("adult")) {
+          status = 'danger';
+          message = language === 'bn' ? "⚠️ বিপজ্জনক লিংক! ফিশিং, ম্যালওয়্যার বা অশ্লীল বিষয় থাকতে পারে!" :
+                                        "⚠️ Dangerous link! May contain phishing, malware, or adult content!";
+        }
+
+        result.innerHTML = message;
+        result.className = status;
+        historyData.unshift({ url, status, message });
+        updateHistoryDisplay();
+      }, 1000);
+    }
+
+    document.getElementById('linkInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        checkLink();
+      }
+    });
+  </script>
+
+</body>
+</html>
